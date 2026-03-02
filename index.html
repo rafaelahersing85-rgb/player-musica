@@ -13,9 +13,6 @@
       .title { font-weight: bold; font-size: 1.1em; }
       .artist { color: #666; margin-bottom: 5px; }
       
-      /* Mantendo a linha do tempo, mas escondendo o player nativo das músicas da lista */
-      .audio-player { display: none; } 
-      
       .playing { border: 2px solid #007bff; background-color: #e2e6ea; }
       
       /* Estilos do Player Fixo */
@@ -56,7 +53,6 @@
           <div class="artist">Imagine Dragons</div>
         </div>
       </div>
-    </div>
 
       <div class="song-card" onclick="playSong(3)">
         <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).jpg" class="cover">
@@ -65,10 +61,7 @@
           <div class="artist">Imagine Dragons</div>
         </div>
       </div>
-    </div>
-
-    
-    <div id="player-bar">
+    </div> <div id="player-bar">
       <span id="now-playing">Selecione uma música</span>
       
       <audio id="main-audio" controls></audio>
@@ -85,9 +78,8 @@
       const songs = [
         { title: "Bastille - Acoustic Live in Paris", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3" },
         { title: "The Scientist", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3" },
-        { title: "Demons", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3" }
-        { title: "Whatever It Takes", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).mp3" }        
-        
+        { title: "Demons", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3" },
+        { title: "Whatever It Takes", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).mp3" }
       ];
 
       const mainAudio = document.getElementById('main-audio');
