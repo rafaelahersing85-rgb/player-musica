@@ -12,37 +12,67 @@
       .title { font-weight: bold; font-size: 1.1em; }
       .artist { color: #666; margin-bottom: 5px; }
       audio { width: 100%; margin-top: 5px; }
+      .playing { border: 2px solid #007bff; }
     </style>
   </head>
   <body>
     <h1>Minha Playlist</h1>
     
-    <div class="song-card">
-      <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.jpg" class="cover">
-      <div class="info">
-        <div class="title">Bastille - Acoustic Live in Paris</div>
-        <div class="artist">Pompeii</div>
-        <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3"></audio>
+    <div id="playlist">
+      <div class="song-card">
+        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.jpg" class="cover">
+        <div class="info">
+          <div class="title">Bastille - Acoustic Live in Paris</div>
+          <div class="artist">Pompeii</div>
+          <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3"></audio>
+        </div>
+      </div>
+
+      <div class="song-card">
+        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Scientist%20%E2%80%93%20Coldplay.jpg" class="cover">
+        <div class="info">
+          <div class="title">The Scientist</div>
+          <div class="artist">Coldplay</div>
+          <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3"></audio>
+        </div>
+      </div>
+      
+      <div class="song-card">
+        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).jpg" class="cover">
+        <div class="info">
+          <div class="title">Demons</div>
+          <div class="artist">Imagine Dragons</div>
+          <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3"></audio>
+        </div>
       </div>
     </div>
 
-    <div class="song-card">
-      <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Scientist%20%E2%80%93%20Coldplay.jpg" class="cover">
-      <div class="info">
-        <div class="title">The Scientist</div>
-        <div class="artist">Coldplay</div>
-        <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3"></audio>
-      </div>
-    </div>
-    
-    <div class="song-card">
-      <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).jpg" class="cover">
-      <div class="info">
-        <div class="title">Demons</div>
-        <div class="artist">Imagine Dragons</div>
-        <audio controls src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3"></audio>
-      </div>
-    </div>
+    <script>
+      const audioPlayers = document.querySelectorAll('audio');
+      
+      audioPlayers.forEach((player, index) => {
+        // Quando uma música começa a tocar
+        player.onplay = () => {
+          // Pausa todas as outras músicas
+          audioPlayers.forEach((otherPlayer, otherIndex) => {
+            if (index !== otherIndex) {
+              otherPlayer.pause();
+            }
+          });
+          // Destaca a música atual
+          document.querySelectorAll('.song-card').forEach(card => card.classList.remove('playing'));
+          player.closest('.song-card').classList.add('playing');
+        };
+
+        // Quando a música termina
+        player.onended = () => {
+          // Toca a próxima música se ela existir
+          if (index + 1 < audioPlayers.length) {
+            audioPlayers[index + 1].play();
+          }
+        };
+      });
+    </script>
     
     </body>
 </html>
