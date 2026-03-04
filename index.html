@@ -12,17 +12,12 @@
       .info { flex-grow: 1; }
       .title { font-weight: bold; font-size: 1.1em; }
       .artist { color: #666; margin-bottom: 5px; }
-      
       .playing { border: 2px solid #007bff; background-color: #e2e6ea; }
-      
-      /* Estilos do Player Fixo */
       #player-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000; box-sizing: border-box;}
       .player-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; }
       .control-btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 1em; }
       .control-btn:hover { background: #0056b3; }
       #now-playing { font-weight: bold; text-align: center; display: block; margin-bottom: 5px; }
-      
-      /* Linha do tempo na barra fixa */
       #main-audio { width: 100%; margin-top: 5px; }
     </style>
   </head>
@@ -66,7 +61,7 @@
         <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Acapella).jpg" class="cover">
         <div class="info">
           <div class="title">Night Changes (Acapella)</div>
-          <div class="artist">One Direction - Night Changes (Acapella)</div>
+          <div class="artist">One Direction</div>
         </div>
       </div>
 
@@ -85,14 +80,11 @@
           <div class="artist">The Chainsmokers</div>
         </div>
       </div>
+    </div> 
 
-      
-      
-    </div> <div id="player-bar">
+    <div id="player-bar">
       <span id="now-playing">Selecione uma música</span>
-      
       <audio id="main-audio" controls></audio>
-      
       <div class="player-controls">
         <button class="control-btn" onclick="prevSong()">⏮ Voltar</button>
         <button class="control-btn" onclick="togglePlay()" id="play-pause-btn">▶️ Play</button>
@@ -101,7 +93,6 @@
     </div>
 
     <script>
-      // Lista de dados das músicas
       const songs = [
         { title: "Bastille - Acoustic Live in Paris", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3" },
         { title: "The Scientist", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3" },
@@ -109,8 +100,7 @@
         { title: "Whatever It Takes", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).mp3" },
         { title: "Night Changes (Acapella)", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Studio%20Acapella%20-%20Vocals%20Only)%20%20Almost%20Official.mp3" },
         { title: "Something Just Like This", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This%20(Official%20Lyric%20Video).mp3" },
-        { title: "Closer (Lyric) ft. Halsey", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This%20(Official%20Lyric%20Video).mp3" }
-
+        { title: "Closer (Lyric) ft. Halsey", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20-%20Closer%20(Lyric)%20ft.%20Halsey.mp3" }
       ];
 
       const mainAudio = document.getElementById('main-audio');
@@ -123,13 +113,10 @@
         if (currentSongIndex !== -1) {
           songCards[currentSongIndex].classList.remove('playing');
         }
-        
         currentSongIndex = index;
         const song = songs[currentSongIndex];
-        
         mainAudio.src = song.url;
         mainAudio.play();
-        
         songCards[currentSongIndex].classList.add('playing');
         nowPlayingText.innerText = song.title;
         playPauseBtn.innerText = "⏸ Pause";
@@ -137,7 +124,6 @@
 
       function togglePlay() {
         if (currentSongIndex === -1) return;
-        
         if (mainAudio.paused) {
           mainAudio.play();
           playPauseBtn.innerText = "⏸ Pause";
@@ -159,11 +145,7 @@
         playSong(prevIndex);
       }
 
-      // Toca a próxima automaticamente ao acabar
-      mainAudio.onended = () => {
-        nextSong();
-      };
+      mainAudio.onended = () => { nextSong(); };
     </script>
-    
-    </body>
+  </body>
 </html>
