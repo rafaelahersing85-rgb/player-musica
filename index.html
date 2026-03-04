@@ -25,62 +25,7 @@
     <h1>Minha Playlist</h1>
     
     <div id="playlist">
-      <div class="song-card" onclick="playSong(0)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.jpg" class="cover">
-        <div class="info">
-          <div class="title">Bastille - Acoustic Live in Paris</div>
-          <div class="artist">Pompeii</div>
-        </div>
       </div>
-
-      <div class="song-card" onclick="playSong(1)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Scientist%20%E2%80%93%20Coldplay.jpg" class="cover">
-        <div class="info">
-          <div class="title">The Scientist</div>
-          <div class="artist">Coldplay</div>
-        </div>
-      </div>
-      
-      <div class="song-card" onclick="playSong(2)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).jpg" class="cover">
-        <div class="info">
-          <div class="title">Demons</div>
-          <div class="artist">Imagine Dragons</div>
-        </div>
-      </div>
-
-      <div class="song-card" onclick="playSong(3)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).jpg" class="cover">
-        <div class="info">
-          <div class="title">Whatever It Takes</div>
-          <div class="artist">Imagine Dragons</div>
-        </div>
-      </div>
-
-      <div class="song-card" onclick="playSong(4)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Acapella).jpg" class="cover">
-        <div class="info">
-          <div class="title">Night Changes (Acapella)</div>
-          <div class="artist">One Direction</div>
-        </div>
-      </div>
-
-      <div class="song-card" onclick="playSong(5)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This.jpg" class="cover">
-        <div class="info">
-          <div class="title">Something Just Like This</div>
-          <div class="artist">The Chainsmokers & Coldplay</div>
-        </div>
-      </div>
-
-      <div class="song-card" onclick="playSong(6)">
-        <img src="https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20-%20Closer%20(Lyric)%20ft.%20Halsey.jpg" class="cover">
-        <div class="info">
-          <div class="title">Closer (Lyric) ft. Halsey</div>
-          <div class="artist">The Chainsmokers</div>
-        </div>
-      </div>
-    </div> 
 
     <div id="player-bar">
       <span id="now-playing">Selecione uma música</span>
@@ -93,32 +38,48 @@
     </div>
 
     <script>
+      // LISTA DE MÚSICAS - Verifique sempre as VÍRGULAS no final de cada linha { ... },
       const songs = [
-        { title: "Bastille - Acoustic Live in Paris", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3" },
-        { title: "The Scientist", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3" },
-        { title: "Demons", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3" },
-        { title: "Whatever It Takes", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).mp3" },
-        { title: "Night Changes (Acapella)", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Studio%20Acapella%20-%20Vocals%20Only)%20%20Almost%20Official.mp3" },
-        { title: "Something Just Like This", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This%20(Official%20Lyric%20Video).mp3" },
-        { title: "Closer (Lyric) ft. Halsey", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20-%20Closer%20(Lyric)%20ft.%20Halsey.mp3" }
+        { title: "Bastille - Acoustic Live in Paris", artist: "Pompeii", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Bastille%20-%20Pompeii%20-%20Acoustic%20%5B%20Live%20in%20Paris%20%5D.mp3" },
+        { title: "The Scientist", artist: "Coldplay", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Scientist%20%E2%80%93%20Coldplay.jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Coldplay%20-%20The%20Scientist%20(Official%204K%20Video).mp3" },
+        { title: "Demons", artist: "Imagine Dragons", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Demons%20(Official%20Music%20Video).mp3" },
+        { title: "Whatever It Takes", artist: "Imagine Dragons", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/Imagine%20Dragons%20-%20Whatever%20It%20Takes%20(Official%20Music%20Video).mp3" },
+        { title: "Night Changes (Acapella)", artist: "One Direction", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Acapella).jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/One%20Direction%20-%20Night%20Changes%20(Studio%20Acapella%20-%20Vocals%20Only)%20%20Almost%20Official.mp3" },
+        { title: "Something Just Like This", artist: "The Chainsmokers & Coldplay", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This.jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20%26%20Coldplay%20-%20Something%20Just%20Like%20This%20(Official%20Lyric%20Video).mp3" },
+        { title: "Closer (Lyric) ft. Halsey", artist: "The Chainsmokers", cover: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20-%20Closer%20(Lyric)%20ft.%20Halsey.jpg", url: "https://pub-26ef4248e18a43e1aae77013bad3859b.r2.dev/The%20Chainsmokers%20-%20Closer%20(Official%20Lyric%20Video)%20ft.%20Halsey.mp3" }
       ];
 
+      const playlistDiv = document.getElementById('playlist');
       const mainAudio = document.getElementById('main-audio');
       const nowPlayingText = document.getElementById('now-playing');
       const playPauseBtn = document.getElementById('play-pause-btn');
-      const songCards = document.querySelectorAll('.song-card');
       let currentSongIndex = -1;
 
+      // Cria os cards na tela
+      songs.forEach((song, index) => {
+        const card = document.createElement('div');
+        card.className = 'song-card';
+        card.onclick = () => playSong(index);
+        card.innerHTML = `
+          <img src="${song.cover}" class="cover">
+          <div class="info">
+            <div class="title">${song.title}</div>
+            <div class="artist">${song.artist}</div>
+          </div>
+        `;
+        playlistDiv.appendChild(card);
+      });
+
       function playSong(index) {
-        if (currentSongIndex !== -1) {
-          songCards[currentSongIndex].classList.remove('playing');
-        }
+        const cards = document.querySelectorAll('.song-card');
+        if (currentSongIndex !== -1) cards[currentSongIndex].classList.remove('playing');
+        
         currentSongIndex = index;
-        const song = songs[currentSongIndex];
-        mainAudio.src = song.url;
+        mainAudio.src = songs[currentSongIndex].url;
         mainAudio.play();
-        songCards[currentSongIndex].classList.add('playing');
-        nowPlayingText.innerText = song.title;
+        
+        cards[currentSongIndex].classList.add('playing');
+        nowPlayingText.innerText = songs[currentSongIndex].title;
         playPauseBtn.innerText = "⏸ Pause";
       }
 
@@ -134,18 +95,16 @@
       }
 
       function nextSong() {
-        let nextIndex = currentSongIndex + 1;
-        if (nextIndex >= songs.length) nextIndex = 0;
+        let nextIndex = (currentSongIndex + 1) % songs.length;
         playSong(nextIndex);
       }
 
       function prevSong() {
-        let prevIndex = currentSongIndex - 1;
-        if (prevIndex < 0) prevIndex = songs.length - 1;
+        let prevIndex = (currentSongIndex - 1 + songs.length) % songs.length;
         playSong(prevIndex);
       }
 
-      mainAudio.onended = () => { nextSong(); };
+      mainAudio.onended = () => nextSong();
     </script>
   </body>
 </html>
