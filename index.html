@@ -1,138 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Player Organizado</title>
+    <title>Meu Player com Pastas</title>
     <style>
-      body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; padding-bottom: 180px; }
-      h2 { color: #333; font-size: 1.2em; margin-bottom: 10px; }
-      #filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
-      .filter-btn { background: #e0e0e0; color: #333; border: 1px solid #ccc; padding: 10px 18px; border-radius: 20px; cursor: pointer; transition: 0.3s; }
-      .filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
-      .song-card { background: white; padding: 12px; margin-bottom: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; align-items: center; cursor: pointer; }
-      .cover { width: 50px; height: 50px; border-radius: 4px; margin-right: 12px; object-fit: cover; background: #ddd; }
-      .title { font-weight: bold; flex-grow: 1; font-size: 0.95em; }
-      .playing { border-left: 5px solid #007bff; background-color: #f0f7ff; }
-      #player-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); z-index: 1000; box-sizing: border-box; }
-      .player-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; }
-      .control-btn { background: #007bff; color: white; border: none; padding: 12px 22px; border-radius: 25px; cursor: pointer; font-weight: bold; }
-      .shuffle-btn { background: #28a745; }
-      #main-audio { width: 100%; margin-top: 10px; }
-      #now-playing { text-align: center; display: block; font-weight: bold; color: #007bff; font-size: 0.9em; height: 1.2em; overflow: hidden; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; padding-bottom: 200px; }
+        .filter-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .filter-btn { background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .filter-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        .song-card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; align-items: center; cursor: pointer; }
+        .cover { width: 50px; height: 50px; border-radius: 4px; margin-right: 15px; object-fit: cover; background: #eee; }
+        .title { font-weight: bold; flex-grow: 1; }
+        .playing { border: 2px solid #007bff; background-color: #eef6ff; }
+        #player-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .controls { display: flex; justify-content: center; gap: 15px; align-items: center; margin-top: 10px; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+        .btn-shuffle { background: #28a745; }
+        #main-audio { width: 100%; }
+        #now-playing { text-align: center; display: block; margin-bottom: 5px; font-weight: bold; color: #007bff; }
     </style>
-  </head>
-  <body>
-    <h2>📁 Pastas / Playlists</h2>
-    <div id="filters">Carregando pastas...</div>
+</head>
+<body>
+    <h1>Minhas Playlists</h1>
     
-    <div id="playlist-header" style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 id="current-category">Todas as Músicas</h2>
+    <div class="filter-container" id="category-filters">
+        <!-- Botões de pasta aparecerão aqui -->
     </div>
-    <div id="playlist">Buscando arquivos no R2...</div>
+
+    <div id="playlist-box">Carregando...</div>
 
     <div id="player-bar">
-      <span id="now-playing">Selecione uma música</span>
-      <audio id="main-audio" controls></audio>
-      <div class="player-controls">
-        <button class="control-btn" onclick="prevSong()">⏮</button>
-        <button class="control-btn" onclick="togglePlay()" id="play-pause-btn">▶️ Play</button>
-        <button class="control-btn" onclick="nextSong()">⏭</button>
-        <button class="control-btn shuffle-btn" onclick="shuffleCurrent()">🔀 Aleatório</button>
-      </div>
+        <span id="now-playing">Selecione uma música</span>
+        <audio id="main-audio" controls></audio>
+        <div class="controls">
+            <button class="btn" onclick="prev()">⏮</button>
+            <button class="btn" onclick="toggle()">Play/Pause</button>
+            <button class="btn" onclick="next()">⏭</button>
+            <button class="btn btn-shuffle" onclick="shuffle()">🔀 Aleatório</button>
+        </div>
     </div>
 
     <script>
-      const WORKER_URL = 'https://playlist-api.rafaelahersing85.workers.dev/'; 
+        const WORKER_URL = 'https://playlist-api.rafaelahersing85.workers.dev/';
+        let allSongs = [];
+        let currentList = [];
+        let currentIndex = -1;
+        const audio = document.getElementById('main-audio');
 
-      let allSongs = [];   
-      let displayedSongs = []; 
-      let currentIndex = -1;
-      const mainAudio = document.getElementById('main-audio');
-
-      async function init() {
-        try {
-          const response = await fetch(WORKER_URL);
-          allSongs = await response.json();
-          filterBy('Tudo'); // Começa mostrando tudo na ordem
-          renderFilters();
-        } catch (e) {
-          document.getElementById('playlist').innerText = "Erro ao carregar músicas.";
+        async function init() {
+            const res = await fetch(WORKER_URL);
+            allSongs = await res.json();
+            renderFilters();
+            filter('Geral'); // Começa mostrando a pasta principal ou Geral
         }
-      }
 
-      function renderFilters() {
-        const folders = ['Tudo', ...new Set(allSongs.map(s => s.folder))];
-        document.getElementById('filters').innerHTML = folders.map(f => 
-          `<button class="filter-btn" id="btn-${f}" onclick="filterBy('${f}')">${f}</button>`
-        ).join('');
-        document.getElementById('btn-Tudo').classList.add('active');
-      }
-
-      function filterBy(folder) {
-        // Remove active de todos os botões
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById(`btn-${folder}`);
-        if(btn) btn.classList.add('active');
-
-        // Filtra a lista mantendo a ordem alfabética original do Worker
-        if (folder === 'Tudo') {
-          displayedSongs = [...allSongs];
-          document.getElementById('current-category').innerText = "Todas as Músicas";
-        } else {
-          displayedSongs = allSongs.filter(s => s.folder === folder);
-          document.getElementById('current-category').innerText = `Pasta: ${folder}`;
+        function renderFilters() {
+            const folders = ['Tudo', ...new Set(allSongs.map(s => s.folder))];
+            const container = document.getElementById('category-filters');
+            container.innerHTML = folders.map(f => 
+                `<button class="filter-btn" id="btn-${f}" onclick="filter('${f}')">${f}</button>`
+            ).join('');
         }
-        renderPlaylist();
-      }
 
-      function shuffleCurrent() {
-        // Embaralha apenas o que está na tela agora
-        for (let i = displayedSongs.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [displayedSongs[i], displayedSongs[j]] = [displayedSongs[j], displayedSongs[i]];
+        function filter(folder) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${folder}`).classList.add('active');
+
+            currentList = (folder === 'Tudo') ? [...allSongs] : allSongs.filter(s => s.folder === folder);
+            renderPlaylist();
         }
-        renderPlaylist();
-        if (displayedSongs.length > 0) playSong(0);
-      }
 
-      function renderPlaylist() {
-        const div = document.getElementById('playlist');
-        div.innerHTML = displayedSongs.map((s, i) => `
-          <div class="song-card" id="card-${i}" onclick="playSong(${i})">
-            <img src="${s.cover}" class="cover" onerror="this.src='https://via.placeholder.com/60?text=♫'">
-            <div class="title">${s.title}</div>
-          </div>
-        `).join('');
-      }
-
-      function playSong(i) {
-        if (currentIndex !== -1) {
-          const old = document.getElementById(`card-${currentIndex}`);
-          if (old) old.classList.remove('playing');
+        function renderPlaylist() {
+            const box = document.getElementById('playlist-box');
+            box.innerHTML = currentList.map((s, i) => `
+                <div class="song-card" id="card-${i}" onclick="playSong(${i})">
+                    <img src="${s.cover}" class="cover" onerror="this.src='https://via.placeholder.com/50?text=♫'">
+                    <div class="title">${s.title}</div>
+                </div>
+            `).join('');
         }
-        currentIndex = i;
-        mainAudio.src = displayedSongs[i].url;
-        mainAudio.play();
-        document.getElementById(`card-${i}`).classList.add('playing');
-        document.getElementById('now-playing').innerText = displayedSongs[i].title;
-        document.getElementById('play-pause-btn').innerText = "⏸ Pause";
-      }
 
-      function togglePlay() {
-        if (currentIndex === -1) return;
-        mainAudio.paused ? (mainAudio.play(), document.getElementById('play-pause-btn').innerText = "⏸ Pause") : (mainAudio.pause(), document.getElementById('play-pause-btn').innerText = "▶️ Play");
-      }
+        function playSong(i) {
+            if (currentIndex !== -1) document.getElementById(`card-${currentIndex}`)?.classList.remove('playing');
+            currentIndex = i;
+            audio.src = currentList[i].url;
+            audio.play();
+            document.getElementById(`card-${i}`).classList.add('playing');
+            document.getElementById('now-playing').innerText = currentList[i].title;
+        }
 
-      function nextSong() { 
-        if(displayedSongs.length > 0) playSong((currentIndex + 1) % displayedSongs.length); 
-      }
-      function prevSong() { 
-        if(displayedSongs.length > 0) playSong((currentIndex - 1 + displayedSongs.length) % displayedSongs.length); 
-      }
-      
-      mainAudio.onended = nextSong;
-      init();
+        function shuffle() {
+            for (let i = currentList.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentList[i], currentList[j]] = [currentList[j], currentList[i]];
+            }
+            renderPlaylist();
+            playSong(0);
+        }
+
+        function toggle() { audio.paused ? audio.play() : audio.pause(); }
+        function next() { playSong((currentIndex + 1) % currentList.length); }
+        function prev() { playSong((currentIndex - 1 + currentList.length) % currentList.length); }
+        
+        audio.onended = next;
+        init();
     </script>
-  </body>
+</body>
 </html>
