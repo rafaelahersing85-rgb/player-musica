@@ -14,8 +14,10 @@
 
       body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: var(--bg-color); padding-bottom: 160px; color: #333; margin: 0; }
       
-      h2 { color: #333; font-size: 1.1em; margin-bottom: 10px; padding-left: 5px; }
-      
+      .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+      h2 { color: #333; font-size: 1.1em; margin: 0; padding-left: 5px; }
+      .admin-link { color: var(--primary-color); text-decoration: none; font-size: 0.8em; font-weight: bold; border: 1px solid var(--primary-color); padding: 5px 10px; border-radius: 15px; }
+
       #filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
       .filter-btn { background: #e0e0e0; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-size: 0.9em; }
       .filter-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
@@ -58,7 +60,10 @@
     </style>
   </head>
   <body>
-    <h2>📁 Pastas</h2>
+    <div class="header-flex">
+        <h2>📁 Pastas</h2>
+        <a href="admin.html" class="admin-link">+ Add Música</a>
+    </div>
     <div id="filters">Carregando pastas...</div>
     
     <div id="playlist-header">
@@ -103,7 +108,7 @@
     </div>
 
     <script>
-      const WORKER_URL = 'https://playlist-api.rafaelahersing85.workers.dev/'; 
+      const WORKER_URL = 'https://playlist-api.rafaelahering85.workers.dev/'; 
 
       let allSongs = [];   
       let displayedSongs = []; 
@@ -122,7 +127,10 @@
           const response = await fetch(WORKER_URL);
           allSongs = await response.json();
           renderFilters();
-          filterBy('Diversos');
+          
+          // Se houver músicas, seleciona a primeira pasta disponível ou 'Diversos'
+          const firstFolder = allSongs.length > 0 ? allSongs[0].folder : 'Diversos';
+          filterBy(firstFolder);
         } catch (e) {
           document.getElementById('playlist').innerText = "Erro ao carregar músicas.";
         }
@@ -147,7 +155,7 @@
           displayedSongs = allSongs.filter(s => s.folder === folder);
           document.getElementById('current-category').innerText = `Pasta: ${folder}`;
         }
-        currentIndex = -1; // Reseta o índice ao trocar de pasta
+        currentIndex = -1; 
         renderPlaylist();
       }
 
@@ -161,34 +169,24 @@
         `).join('');
       }
 
-      // --- AJUSTE NA FUNÇÃO ALEATÓRIO ---
       function shuffleCurrent() {
         if (displayedSongs.length === 0) return;
-        
-        // Algoritmo de Fisher-Yates para embaralhar
         for (let i = displayedSongs.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [displayedSongs[i], displayedSongs[j]] = [displayedSongs[j], displayedSongs[i]];
         }
-        
-        // Renderiza a lista novamente com a nova ordem
         renderPlaylist();
-        // Começa a tocar a primeira música da nova ordem embaralhada
         playSong(0);
       }
 
       function playSong(i) {
         if (i < 0 || i >= displayedSongs.length) return;
-        
         currentIndex = i;
         mainAudio.src = displayedSongs[i].url;
         mainAudio.play();
-        
-        // Atualiza visual da playlist
         document.querySelectorAll('.song-card').forEach(card => card.classList.remove('playing'));
         const currentCard = document.getElementById(`card-${i}`);
         if(currentCard) currentCard.classList.add('playing');
-        
         document.getElementById('now-playing').innerText = displayedSongs[i].title;
         updatePlayPauseIcon();
       }
@@ -206,13 +204,8 @@
         playIcon.className = mainAudio.paused ? 'fas fa-play' : 'fas fa-pause';
       }
 
-      function nextSong() { 
-        if(displayedSongs.length > 0) playSong((currentIndex + 1) % displayedSongs.length); 
-      }
-      
-      function prevSong() { 
-        if(displayedSongs.length > 0) playSong((currentIndex - 1 + displayedSongs.length) % displayedSongs.length); 
-      }
+      function nextSong() { if(displayedSongs.length > 0) playSong((currentIndex + 1) % displayedSongs.length); }
+      function prevSong() { if(displayedSongs.length > 0) playSong((currentIndex - 1 + displayedSongs.length) % displayedSongs.length); }
 
       function toggleLoop() {
         isLooping = !isLooping;
@@ -244,7 +237,6 @@
       }
       
       mainAudio.onended = () => { if(!isLooping) nextSong(); };
-      
       init();
     </script>
   </body>
