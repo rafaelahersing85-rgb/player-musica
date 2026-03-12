@@ -12,7 +12,7 @@
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; box-sizing: border-box; background: #333; color: white; }
         button { width: 100%; padding: 12px; background: #1DB954; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         button:disabled { background: #555; cursor: not-allowed; }
-        #status { margin-top: 15px; font-size: 0.85rem; text-align: center; min-height: 1.2em; line-height: 1.4; }
+        #status { margin-top: 15px; font-size: 0.85rem; text-align: center; min-height: 1.2em; line-height: 1.4; white-space: pre-wrap; }
         .back-link { display: block; text-align: center; margin-top: 20px; color: #1DB954; text-decoration: none; font-size: 0.8rem; }
     </style>
 </head>
@@ -56,29 +56,36 @@
         }
 
         btn.disabled = true;
-        status.innerText = "⏳ Convertendo e enviando para o R2...\nAguarde, isso pode levar alguns segundos.";
+        status.innerText = "⏳ Processando...\nAguarde, o download pode levar até 40 segundos.";
         status.style.color = "yellow";
 
         try {
-            // Certifique-se de que esta URL é a que está funcionando (com ou sem o "s" em hersing)
             const response = await fetch('https://playlist-api.rafaelahersing85.workers.dev/add-music', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ videoUrl, fileName, folder })
             });
 
+            // Tenta ler a resposta como JSON
+            let result;
+            try {
+                result = await response.json();
+            } catch (jsonErr) {
+                throw new Error("O servidor enviou uma resposta inválida (não-JSON). Verifique se o Worker foi atualizado.");
+            }
+
             if (response.ok) {
-                status.innerText = "✅ Sucesso! Música adicionada.";
+                status.innerText = "✅ Sucesso! Música salva no R2.";
                 status.style.color = "#1DB954";
                 document.getElementById('ytUrl').value = "";
                 document.getElementById('fileName').value = "";
             } else {
-                const errorText = await response.text();
-                throw new Error(errorText || "Erro no servidor.");
+                throw new Error(result.error || "Erro ao processar áudio.");
             }
         } catch (err) {
-            status.innerText = "❌ Erro: " + err.message;
+            status.innerText = "❌ " + err.message;
             status.style.color = "#ff4444";
+            console.error(err);
         } finally {
             btn.disabled = false;
         }
