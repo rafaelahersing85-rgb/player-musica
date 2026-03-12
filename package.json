@@ -1,1 +1,8 @@
-
+{
+  "name": "yt-audio-api",
+  "type": "module",
+  "dependencies": {
+    "express": "^4.18.2",
+    "yt-dlp-exec": "^2.1.1"
+  }
+}
