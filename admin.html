@@ -60,12 +60,11 @@
         status.style.color = "yellow";
 
         try {
-            // Chamada direta para a raiz do Worker para evitar erros de rota (404/HTML)
+            // URL apontando diretamente para a raiz do Worker que já respondeu JSON para você
             const response = await fetch('https://playlist-api.rafaelahersing85.workers.dev/', {
                 method: 'POST',
                 headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ videoUrl, fileName, folder })
             });
@@ -76,8 +75,8 @@
             try {
                 result = JSON.parse(responseText);
             } catch (e) {
-                console.error("Resposta não-JSON recebida:", responseText);
-                throw new Error("O servidor respondeu com um erro de sistema (HTML). Verifique se o Worker está publicado.");
+                console.log("Resposta bruta do servidor:", responseText);
+                throw new Error("O servidor enviou HTML em vez de dados. Verifique o console (F12).");
             }
 
             if (response.ok) {
