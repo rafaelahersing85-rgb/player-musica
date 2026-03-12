@@ -18,7 +18,7 @@
       h2 { color: #333; font-size: 1.1em; margin: 0; padding-left: 5px; }
       .admin-link { color: var(--primary-color); text-decoration: none; font-size: 0.8em; font-weight: bold; border: 1px solid var(--primary-color); padding: 5px 10px; border-radius: 15px; }
 
-      #filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+      #filters { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; min-height: 40px; }
       .filter-btn { background: #e0e0e0; color: #333; border: 1px solid #ccc; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-size: 0.9em; }
       .filter-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
@@ -108,6 +108,7 @@
     </div>
 
     <script>
+      // URL CORRIGIDA PARA O SEU WORKER
       const WORKER_URL = 'https://playlist-api.rafaelahering85.workers.dev/'; 
 
       let allSongs = [];   
@@ -125,27 +126,33 @@
       async function init() {
         try {
           const response = await fetch(WORKER_URL);
+          if (!response.ok) throw new Error();
           allSongs = await response.json();
           renderFilters();
           
-          // Se houver músicas, seleciona a primeira pasta disponível ou 'Diversos'
-          const firstFolder = allSongs.length > 0 ? allSongs[0].folder : 'Diversos';
-          filterBy(firstFolder);
+          if (allSongs.length > 0) {
+            filterBy(allSongs[0].folder);
+          } else {
+            document.getElementById('playlist').innerText = "Nenhuma música encontrada.";
+            document.getElementById('filters').innerText = "";
+          }
         } catch (e) {
-          document.getElementById('playlist').innerText = "Erro ao carregar músicas.";
+          document.getElementById('playlist').innerText = "Erro ao conectar com o servidor.";
+          console.error("Erro na busca:", e);
         }
       }
 
       function renderFilters() {
         const folders = ['Tudo', ...new Set(allSongs.map(s => s.folder))];
         document.getElementById('filters').innerHTML = folders.map(f => 
-          `<button class="filter-btn" id="btn-${f}" onclick="filterBy('${f}')">${f}</button>`
+          `<button class="filter-btn" id="btn-${f.replace(/\s/g, '')}" onclick="filterBy('${f}')">${f}</button>`
         ).join('');
       }
 
       function filterBy(folder) {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById(`btn-${folder}`);
+        const btnId = `btn-${folder.replace(/\s/g, '')}`;
+        const btn = document.getElementById(btnId);
         if(btn) btn.classList.add('active');
 
         if (folder === 'Tudo') {
@@ -163,30 +170,22 @@
         const div = document.getElementById('playlist');
         div.innerHTML = displayedSongs.map((s, i) => `
           <div class="song-card ${currentIndex === i ? 'playing' : ''}" id="card-${i}" onclick="playSong(${i})">
-            <img src="${s.cover}" class="cover" onerror="this.src='https://via.placeholder.com/60?text=♫'">
+            <img src="${s.cover}" class="cover" onerror="this.src='https://via.placeholder.com/60/004085/ffffff?text=♫'">
             <div class="title">${s.title}</div>
           </div>
         `).join('');
-      }
-
-      function shuffleCurrent() {
-        if (displayedSongs.length === 0) return;
-        for (let i = displayedSongs.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [displayedSongs[i], displayedSongs[j]] = [displayedSongs[j], displayedSongs[i]];
-        }
-        renderPlaylist();
-        playSong(0);
       }
 
       function playSong(i) {
         if (i < 0 || i >= displayedSongs.length) return;
         currentIndex = i;
         mainAudio.src = displayedSongs[i].url;
-        mainAudio.play();
+        mainAudio.play().catch(e => console.log("Erro ao tocar:", e));
+        
         document.querySelectorAll('.song-card').forEach(card => card.classList.remove('playing'));
         const currentCard = document.getElementById(`card-${i}`);
         if(currentCard) currentCard.classList.add('playing');
+        
         document.getElementById('now-playing').innerText = displayedSongs[i].title;
         updatePlayPauseIcon();
       }
@@ -206,6 +205,16 @@
 
       function nextSong() { if(displayedSongs.length > 0) playSong((currentIndex + 1) % displayedSongs.length); }
       function prevSong() { if(displayedSongs.length > 0) playSong((currentIndex - 1 + displayedSongs.length) % displayedSongs.length); }
+
+      function shuffleCurrent() {
+        if (displayedSongs.length === 0) return;
+        for (let i = displayedSongs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [displayedSongs[i], displayedSongs[j]] = [displayedSongs[j], displayedSongs[i]];
+        }
+        renderPlaylist();
+        playSong(0);
+      }
 
       function toggleLoop() {
         isLooping = !isLooping;
