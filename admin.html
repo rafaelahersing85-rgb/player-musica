@@ -1,196 +1,70 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Add Música</title>
-
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #121212;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .card {
-            background: #1e1e1e;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 400px;
-        }
-
-        h2 {
-            margin-top: 0;
-            color: #1DB954;
-        }
-
-        p {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-            color: #bbb;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: none;
-            box-sizing: border-box;
-            background: #333;
-            color: white;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1DB954;
-            border: none;
-            color: white;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.3s;
-        }
-
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-
-        #status {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            text-align: center;
-            min-height: 1.2em;
-            line-height: 1.4;
-            white-space: pre-wrap;
-        }
-
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #1DB954;
-            text-decoration: none;
-            font-size: 0.8rem;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Adicionar Música</title>
 </head>
 
-<body>
+<body style="font-family:sans-serif;background:#111;color:white;padding:40px">
 
-<div class="card">
+<h2>Adicionar música</h2>
 
-    <h2>Adicionar Música</h2>
+<input id="url" placeholder="Cole link do YouTube"
+style="width:400px;padding:10px">
 
-    <p>Link do YouTube:</p>
-    <input type="text" id="ytUrl" placeholder="https://youtube.com/watch?v=...">
+<button onclick="add()">Adicionar</button>
 
-    <p>Nome da Música e Cantor:</p>
-    <input type="text" id="fileName" placeholder="Ex: Artista - Título">
-
-    <p>Escolha a Pasta:</p>
-    <select id="folder">
-        <option value="Diversos">Diversos</option>
-        <option value="Gratidão">Gratidão</option>
-        <option value="Pagode">Pagode</option>
-        <option value="Reino Unido">Reino Unido</option>
-        <option value="Sertanejo">Sertanejo</option>
-    </select>
-
-    <button id="btn" onclick="enviarMusica()">Adicionar à Playlist</button>
-
-    <div id="status"></div>
-
-    <a href="index.html" class="back-link">← Voltar para o Player</a>
-
-</div>
-
+<p id="status"></p>
 
 <script>
 
-async function enviarMusica() {
+const WORKER = "https://playlist-api.rafaelahersing85.workers.dev";
 
-    const videoUrl = document.getElementById('ytUrl').value.trim();
-    const fileName = document.getElementById('fileName').value.trim();
-    const folder = document.getElementById('folder').value;
+async function add(){
 
-    const btn = document.getElementById('btn');
-    const status = document.getElementById('status');
+const url = document.getElementById("url").value;
 
-    if (!videoUrl || !fileName) {
-        alert("Por favor, preencha o link e o nome da música.");
-        return;
-    }
+document.getElementById("status").innerText="Processando...";
 
-    btn.disabled = true;
+try{
 
-    status.innerText =
-        "⏳ Processando...\n" +
-        "Aguarde, o download pode levar até 40 segundos.";
+// pegar dados do vídeo
+const oembed = await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);
+const data = await oembed.json();
 
-    status.style.color = "yellow";
+const title = data.title.replace(/[^\w\s]/gi,"");
+const cover = data.thumbnail_url;
 
-    try {
+// baixar áudio via cobalt direto no navegador
+const cobalt = await fetch("https://api.cobalt.tools/api/json",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({url:url,vCodec:"mp3"})
+});
 
-        const response = await fetch(
-            'https://playlist-api.rafaelahersing85.workers.dev/',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    videoUrl,
-                    fileName,
-                    folder
-                })
-            }
-        );
+const cdata = await cobalt.json();
 
-        let result;
+const audio = await fetch(cdata.url);
+const blob = await audio.blob();
 
-        try {
-            result = await response.json();
-        } catch (e) {
-            throw new Error("Resposta inválida do servidor.");
-        }
+// upload
+const form = new FormData();
+form.append("file",blob,`${title}.mp3`);
+form.append("title",title);
+form.append("cover",cover);
 
-        if (!response.ok) {
-            throw new Error(result.error || "Erro ao processar áudio.");
-        }
+await fetch(WORKER+"/upload",{
+method:"POST",
+body:form
+});
 
-        status.innerText = "✅ Sucesso! Música salva no R2.";
-        status.style.color = "#1DB954";
+document.getElementById("status").innerText="✅ Música adicionada";
 
-        document.getElementById('ytUrl').value = "";
-        document.getElementById('fileName').value = "";
+}catch(e){
 
-    }
+document.getElementById("status").innerText="❌ "+e.message;
 
-    catch (err) {
-
-        status.innerText = "❌ " + err.message;
-        status.style.color = "#ff4444";
-
-        console.error(err);
-
-    }
-
-    finally {
-
-        btn.disabled = false;
-
-    }
+}
 
 }
 
