@@ -8,52 +8,59 @@
         body { font-family: sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 90%; max-width: 400px; }
         h2 { margin-top: 0; color: #1DB954; }
+        p { font-size: 0.9rem; margin-bottom: 5px; color: #bbb; }
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; box-sizing: border-box; background: #333; color: white; }
-        button { width: 100%; padding: 12px; background: #1DB954; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        button:disabled { background: #555; }
-        #status { margin-top: 15px; font-size: 0.9rem; text-align: center; min-height: 1.2em; }
+        button { width: 100%; padding: 12px; background: #1DB954; border: none; color: white; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        #status { margin-top: 15px; font-size: 0.85rem; text-align: center; min-height: 1.2em; line-height: 1.4; }
+        .back-link { display: block; text-align: center; margin-top: 20px; color: #1DB954; text-decoration: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h2>Adicionar Música</h2>
-    <p>Cole o link do YouTube:</p>
-    
+    <p>Link do YouTube:</p>
     <input type="text" id="ytUrl" placeholder="https://youtube.com/watch?v=...">
-    <input type="text" id="fileName" placeholder="Nome: Artista - Título">
+    
+    <p>Nome da Música e Cantor:</p>
+    <input type="text" id="fileName" placeholder="Ex: Artista - Título">
     
     <p>Escolha a Pasta:</p>
     <select id="folder">
         <option value="Diversos">Diversos</option>
-        <option value="Academia">Academia</option>
-        <option value="Trabalho">Trabalho</option>
-        <option value="Relax">Relax</option>
+        <option value="Gratidão">Gratidão</option>
+        <option value="Pagode">Pagode</option>
+        <option value="Reino Unido">Reino Unido</option>
+        <option value="Sertanejo">Sertanejo</option>
     </select>
     
     <button id="btn" onclick="enviarMusica()">Adicionar à Playlist</button>
     
     <div id="status"></div>
+    
+    <a href="index.html" class="back-link">← Voltar para o Player</a>
 </div>
 
 <script>
     async function enviarMusica() {
-        const videoUrl = document.getElementById('ytUrl').value;
-        const fileName = document.getElementById('fileName').value;
+        const videoUrl = document.getElementById('ytUrl').value.trim();
+        const fileName = document.getElementById('fileName').value.trim();
         const folder = document.getElementById('folder').value;
         const btn = document.getElementById('btn');
         const status = document.getElementById('status');
 
         if (!videoUrl || !fileName) {
-            alert("Preencha todos os campos!");
+            alert("Por favor, preencha o link e o nome da música.");
             return;
         }
 
         btn.disabled = true;
-        status.innerText = "Processando... Isso pode levar até 1 minuto.";
+        status.innerText = "⏳ Convertendo e enviando para o R2...\nAguarde, isso pode levar alguns segundos.";
         status.style.color = "yellow";
 
         try {
+            // Certifique-se de que esta URL é a que está funcionando (com ou sem o "s" em hersing)
             const response = await fetch('https://playlist-api.rafaelahersing85.workers.dev/add-music', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -61,17 +68,17 @@
             });
 
             if (response.ok) {
-                status.innerText = "✅ Sucesso! A música foi salva no R2.";
+                status.innerText = "✅ Sucesso! Música adicionada.";
                 status.style.color = "#1DB954";
                 document.getElementById('ytUrl').value = "";
                 document.getElementById('fileName').value = "";
             } else {
                 const errorText = await response.text();
-                throw new Error(errorText);
+                throw new Error(errorText || "Erro no servidor.");
             }
         } catch (err) {
             status.innerText = "❌ Erro: " + err.message;
-            status.style.color = "red";
+            status.style.color = "#ff4444";
         } finally {
             btn.disabled = false;
         }
