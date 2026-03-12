@@ -5,13 +5,11 @@
 <title>Adicionar Música</title>
 </head>
 
-<body style="font-family:sans-serif;background:#111;color:white;padding:40px">
+<body>
 
 <h2>Adicionar música</h2>
 
-<input id="url" placeholder="Cole link do YouTube"
-style="width:400px;padding:10px">
-
+<input id="url" placeholder="Cole o link do YouTube" style="width:400px">
 <button onclick="add()">Adicionar</button>
 
 <p id="status"></p>
@@ -22,47 +20,42 @@ const WORKER = "https://playlist-api.rafaelahersing85.workers.dev";
 
 async function add(){
 
-const url = document.getElementById("url").value;
+const videoUrl = document.getElementById("url").value;
 
-document.getElementById("status").innerText="Processando...";
+if(!videoUrl){
+alert("Cole um link");
+return;
+}
+
+document.getElementById("status").innerText = "baixando...";
 
 try{
 
-// pegar dados do vídeo
-const oembed = await fetch(`https://www.youtube.com/oembed?url=${url}&format=json`);
-const data = await oembed.json();
-
-const title = data.title.replace(/[^\w\s]/gi,"");
-const cover = data.thumbnail_url;
-
-// baixar áudio via cobalt direto no navegador
-const cobalt = await fetch("https://api.cobalt.tools/api/json",{
+const res = await fetch(WORKER + "/add",{
 method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({url:url,vCodec:"mp3"})
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+url:videoUrl
+})
 });
 
-const cdata = await cobalt.json();
+const data = await res.json();
 
-const audio = await fetch(cdata.url);
-const blob = await audio.blob();
+if(data.success){
 
-// upload
-const form = new FormData();
-form.append("file",blob,`${title}.mp3`);
-form.append("title",title);
-form.append("cover",cover);
+document.getElementById("status").innerText = "música adicionada";
 
-await fetch(WORKER+"/upload",{
-method:"POST",
-body:form
-});
+}else{
 
-document.getElementById("status").innerText="✅ Música adicionada";
+document.getElementById("status").innerText = "erro: " + data.error;
+
+}
 
 }catch(e){
 
-document.getElementById("status").innerText="❌ "+e.message;
+document.getElementById("status").innerText = "erro conexão";
 
 }
 
