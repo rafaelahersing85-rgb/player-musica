@@ -1,34 +1,34 @@
 import express from "express";
-import ytdlp from "yt-dlp-exec";
+import { exec } from "child_process";
+import fs from "fs";
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.get("/audio", async (req, res) => {
+app.get("/audio", (req, res) => {
 
   const url = req.query.url;
 
-  if(!url){
-    return res.status(400).send("URL missing");
+  if (!url) {
+    return res.status(400).send("missing url");
   }
 
-  try{
+  const file = "audio.mp3";
 
-    const file="audio.mp3";
+  const cmd = `yt-dlp -x --audio-format mp3 -o "${file}" "${url}"`;
 
-    await ytdlp(url,{
-      extractAudio:true,
-      audioFormat:"mp3",
-      output:file
+  exec(cmd, (err) => {
+
+    if (err) {
+      return res.status(500).send("download error");
+    }
+
+    res.download(file, () => {
+      fs.unlinkSync(file);
     });
 
-    res.sendFile(file,{root:"."});
-
-  }catch(e){
-
-    res.status(500).send("download error");
-
-  }
+  });
 
 });
 
-app.listen(3000);
+app.listen(PORT);
