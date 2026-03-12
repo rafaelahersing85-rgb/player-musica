@@ -1,1 +1,6 @@
-
+services:
+  - type: web
+    name: yt-audio-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server.js
